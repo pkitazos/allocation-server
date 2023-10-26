@@ -1,4 +1,4 @@
-from matchingproblems import solver
+from matching_problems import solver
 from fastapi import FastAPI
 from pydantic import BaseModel
 

@@ -1,4 +1,4 @@
-from matchingproblems import solver
+from matching_problems import solver
 
 args = ['-na', '3', '-maxsize', '1', '-gen', '2', '-lsb', '3']
 
