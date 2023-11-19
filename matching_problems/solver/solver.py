@@ -123,3 +123,6 @@ class Solver:
         if self.options_parser.extra_constraints[Extra_constraints.STAB]:
             stable_correctness = True
         return self.model.get_results(Output_type.LONG, stable_correctness)
+
+    def get_results_object(self):
+        return self.model.get_results_object()

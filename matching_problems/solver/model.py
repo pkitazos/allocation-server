@@ -8,6 +8,7 @@ SPA-STL is the Student-Project Allocation problem with lecturer preferences over
 Students including Ties and Lecturer targets.
 """
 
+
 class Model:
     """Model representing an SPA-STL instance.
 
@@ -55,7 +56,7 @@ class Model:
         self.lec_targets = []
         self.lec_upper_quotas = []
         self.proj_lecturers = []
-        
+
         self.pairs = []
 
         self.info_string = ''
@@ -65,14 +66,12 @@ class Model:
         self.OPTIMAL_PULP_STATUS = 'Optimal'
         self.NOTSOLVED_PULP_STATUS = 'Not Solved'
 
-
     def set_project_lists(self):
         """Sets the project lists from the main pairs data structure."""
         self.project_lists = [[] for i in range(self.num_projects)]
         for st_pairs in self.pairs:
             for st_pr_pair in st_pairs:
                 self.project_lists[st_pr_pair.project_index].append(st_pr_pair)
-
 
     def set_lecturer_lists(self):
         """Sets the lecturer lists from the main pairs data structure."""
@@ -81,7 +80,6 @@ class Model:
             for st_pr_pair in st_pairs:
                 (self.lecturer_lists[st_pr_pair.lecturer_index]
                     .append(st_pr_pair))
-  
 
     def set_rank_lists(self):
         """Sets the student rank lists from the main pairs data structure."""
@@ -89,7 +87,6 @@ class Model:
         for st_pairs in self.pairs:
             for st_pr_pair in st_pairs:
                 self.rank_lists[st_pr_pair.rank_student - 1].append(st_pr_pair)
-
 
     def _get_max_rank(self):
         """Returns the maximum rank of any project among all students.
@@ -104,7 +101,6 @@ class Model:
                     max_rank = st_pr_pair.rank_student
         return max_rank
 
-
     def get_max_lec_upper_quota(self):
         """Returns the maximum lecturer upper quota.
 
@@ -113,9 +109,8 @@ class Model:
         """
         return max(self.lec_upper_quotas)
 
-
     def pulp_setup(
-        self, prob, instance_options, extra_constraints, optimisation_options):
+            self, prob, instance_options, extra_constraints, optimisation_options):
         """Sets up the required Pulp variables.
 
         Sets up all necessary Pulp variables according to user chosen options.
@@ -131,13 +126,13 @@ class Model:
         for pairs_row in self.pairs:
             for pair in pairs_row:
                 pair.pulp_setup(
-                    prob, 
+                    prob,
                     extra_constraints[Extra_constraints.STAB])
 
         # set up the load balancing variables if required
         if any(x in optimisation_options for x in [
-            Optimisation_options.LOADMAXBAL, 
-            Optimisation_options.LOADSUMBAL]):
+                Optimisation_options.LOADMAXBAL,
+                Optimisation_options.LOADSUMBAL]):
 
             self.lec_overload = []
             self.lec_underload = []
@@ -149,26 +144,26 @@ class Model:
 
                 # lecturer overload variable
                 over_var = LpVariable(
-                    "lec_overload_{}".format(lec_index), 
-                    lowBound = lec_upper_quota_neg, 
-                    upBound = lec_upper_quota, 
-                    cat = "Integer")
+                    "lec_overload_{}".format(lec_index),
+                    lowBound=lec_upper_quota_neg,
+                    upBound=lec_upper_quota,
+                    cat="Integer")
                 self.lec_overload.append(over_var)
 
                 # lecturer underload variable
                 under_var = LpVariable(
-                    "lec_underload_{}".format(lec_index), 
-                    lowBound = lec_upper_quota_neg, 
-                    upBound = lec_upper_quota, 
-                    cat = "Integer")
+                    "lec_underload_{}".format(lec_index),
+                    lowBound=lec_upper_quota_neg,
+                    upBound=lec_upper_quota,
+                    cat="Integer")
                 self.lec_underload.append(under_var)
 
                 # absolute lecturer differences
                 abs_lec_diff_var = LpVariable(
-                    "abs_lec_diff_{}".format(lec_index), 
-                    lowBound = 0, 
-                    upBound = lec_upper_quota, 
-                    cat = "Integer")
+                    "abs_lec_diff_{}".format(lec_index),
+                    lowBound=0,
+                    upBound=lec_upper_quota,
+                    cat="Integer")
                 self.abs_lec_diff.append(abs_lec_diff_var)
 
         # set up project closure variables if required
@@ -178,7 +173,6 @@ class Model:
                 proj_closures_var = LpVariable(
                     "project_closures_{}".format(proj_index), cat="Binary")
                 self.project_closures.append(proj_closures_var)
-
 
     def get_debug(self):
         """Returns Pair variable information.
@@ -202,14 +196,13 @@ class Model:
                 lp_vars_string += '1 '
             else:
                 lp_vars_string += '0 '
-            
+
         lp_vars_string += '\n'
 
         model_information = 'Model instance information:\n'
         model_information += self._pairs_string(self.pairs)
 
-        return lp_vars_string + '\n' + model_information 
-
+        return lp_vars_string + '\n' + model_information
 
     def _pairs_string(self, pairs):
         """Returns a string representation of a variable 2D list of Pairs.
@@ -226,7 +219,6 @@ class Model:
                 pairs_string += str(pair) + ' '
             pairs_string += '\n'
         return pairs_string
-    
 
     def get_results(self, short_or_long, stable_correctness=False):
         """Returns a string containing the results of the run.
@@ -241,8 +233,8 @@ class Model:
 
         # Header.
         start_time_string = self.time_start.strftime("%d %b %Y, %X %Z")
-        results = ('# Results for the run conducted on ' 
-            + start_time_string + '\n\n')
+        results = ('# Results for the run conducted on '
+                   + start_time_string + '\n\n')
 
         # Constraints and optimisations.
         results += '# main constraints and optimisations\n'
@@ -260,27 +252,28 @@ class Model:
 
         # Timeout output.
         if not self.time_limit == None:
-            if self.pulp_status == self.NOTSOLVED_PULP_STATUS or total_s > self.time_limit: 
+            if self.pulp_status == self.NOTSOLVED_PULP_STATUS or total_s > self.time_limit:
                 results += 'Timeout: ' + str(self.time_limit) + ' seconds\n'
                 return results
 
         # Solver status.
         results += '# solver status\n'
         results += 'pulp_status: ' + self.pulp_status + '\n\n'
-        if not self.pulp_status == self.OPTIMAL_PULP_STATUS: 
+        if not self.pulp_status == self.OPTIMAL_PULP_STATUS:
             return results
 
         # Timings output.
         results += '# timings\n'
-        results += ('time_model_creation_seconds: ' + str(mod_creation_s) + 
-            '\n')
+        results += ('time_model_creation_seconds: ' + str(mod_creation_s) +
+                    '\n')
         results += ('time_solve_seconds: ' + str(solve_s) + '\n')
-        results += ('time_total_seconds: ' + str(total_s) + '\n\n')  
+        results += ('time_total_seconds: ' + str(total_s) + '\n\n')
 
         # Stability correctness.
         if stable_correctness:
             pair_assignments_with_None = self._get_pair_assignments_with_none()
-            results += ('stability_correct: ' + str(self.check_stability(pair_assignments_with_None)) + '\n\n')
+            results += ('stability_correct: ' +
+                        str(self.check_stability(pair_assignments_with_None)) + '\n\n')
 
         # Matching statistics output.
         pair_assignments = self._get_pair_assignments()
@@ -288,32 +281,32 @@ class Model:
         if short_or_long == Output_type.LONG:
             results += '# the projects assigned to each student\n'
         results += ('matching: ' + self._get_matching_string(pair_assignments) +
-            '\n')
+                    '\n')
         if short_or_long == Output_type.LONG:
             results += '# the sum of ranks of matched students\n'
         results += 'cost: ' + str(self._get_cost(pair_assignments)) + '\n'
         if short_or_long == Output_type.LONG:
             results += '# the sum of squares of ranks of matched students\n'
-        results += ('cost_sq: ' + str(self._get_cost_sq(pair_assignments)) + 
-            '\n')
+        results += ('cost_sq: ' + str(self._get_cost_sq(pair_assignments)) +
+                    '\n')
         if short_or_long == Output_type.LONG:
             results += '# the highest rank of a matched student\n'
-        results += 'degree: ' + str(self._get_degree(pair_assignments)) + '\n'   
+        results += 'degree: ' + str(self._get_degree(pair_assignments)) + '\n'
         if short_or_long == Output_type.LONG:
-            results += '# the number of students gaining their 1st, 2nd, 3rd\n' 
+            results += '# the number of students gaining their 1st, 2nd, 3rd\n'
             results += '# choice project etc\n'
-        results += ('profile: ' + self._get_profile_string(self._get_profile(pair_assignments)) + 
-            '\n')
+        results += ('profile: ' + self._get_profile_string(self._get_profile(pair_assignments)) +
+                    '\n')
         if short_or_long == Output_type.LONG:
             results += '# the maximum absolute difference between a \n'
             results += '# lecturer\'s number of allocations and their target\n'
-        results += ('max_lec_abs_diff: ' + 
-            str(self._get_max_lec_abs_diff(pair_assignments)) + '\n')
+        results += ('max_lec_abs_diff: ' +
+                    str(self._get_max_lec_abs_diff(pair_assignments)) + '\n')
         if short_or_long == Output_type.LONG:
             results += '# the sum of differences between a lecturer\'s \n'
             results += '# number of allocations and their target\n'
-        results += ('sum_lec_abs_diff: ' + 
-            str(self._get_sum_lec_abs_diff(pair_assignments)) + '\n\n')
+        results += ('sum_lec_abs_diff: ' +
+                    str(self._get_sum_lec_abs_diff(pair_assignments)) + '\n\n')
 
         # Detailed student, project and lecturer information.
         if short_or_long == Output_type.LONG:
@@ -322,20 +315,37 @@ class Model:
             results += self._get_detailed_student_info(pair_assignments) + '\n'
 
             results += '# details of which students each project is assigned,\n'
-            results += '# and the number of students assigned compared to the\n' 
-            results += '# projects maximum capacity\n' 
+            results += '# and the number of students assigned compared to the\n'
+            results += '# projects maximum capacity\n'
             results += 'Project_assignments:\n'
             results += self._get_detailed_project_info(pair_assignments) + '\n'
 
             results += '# details of which students each lecturer is\n'
-            results += '# assigned, and the number of students assigned\n' 
+            results += '# assigned, and the number of students assigned\n'
             results += '# compared to the lecturers maximum capacity (target\n'
-            results += '# in brackets)\n' 
+            results += '# in brackets)\n'
             results += 'Lecturer_assignments:\n'
             results += self._get_detailed_lecturer_info(pair_assignments)
 
         return results
 
+    def get_results_object(self):
+        """Returns the assignments, profile, weight, and size of the matching as a dictionary.
+
+        Returns:
+          The assignments, profile, weight, and size of the matching as a dictionary.
+        """
+
+        results = {}
+        pair_assignments = self._get_pair_assignments()
+        profile = self._get_profile(pair_assignments)
+
+        results["matching"] = self._get_matching_list(pair_assignments)
+        results["profile"] = profile
+        results["weight"] = sum((idx+1)*x for idx, x in enumerate(profile))
+        results["size"] = sum(profile)
+        results["degree"] = self._get_degree(pair_assignments)
+        return results
 
     def _get_pair_assignments(self):
         """Returns the matched Pairs of the matching.
@@ -350,7 +360,6 @@ class Model:
                 if pair.lp_var.varValue:
                     pair_assignments.append(pair)
         return pair_assignments
-
 
     def _get_pair_assignments_with_none(self):
         """Returns the Pairs of the matching for each student.
@@ -372,7 +381,6 @@ class Model:
                 pair_assignments.append(None)
         return pair_assignments
 
-
     def _get_matching_string(self, pair_assignments):
         """Returns a string containing the student-project assignments.
 
@@ -388,6 +396,20 @@ class Model:
             matching[pair.student_index] = str(pair.projectID)
         return ' '.join(matching)
 
+    def _get_matching_list(self, pair_assignments):
+        """Returns a list containing the student-project assignments.
+
+        Args:
+          pair_assignments: List of student-project matched Pairs.
+
+        Returns:
+          The student-project assignments.
+        """
+
+        matching = ['0'] * self.num_students
+        for pair in pair_assignments:
+            matching[pair.student_index] = pair.projectID
+        return matching
 
     def _get_cost(self, pair_assignments):
         """Returns the sum of student ranks for the matching.
@@ -404,7 +426,6 @@ class Model:
             cost += pair.rank_student
         return cost
 
-
     def _get_cost_sq(self, pair_assignments):
         """Returns the sum of squares of student ranks for the matching.
 
@@ -419,7 +440,6 @@ class Model:
         for pair in pair_assignments:
             cost_sq += pair.rank_student * pair.rank_student
         return cost_sq
-
 
     def _get_degree(self, pair_assignments):
         """Returns a the degree of the matching as a String.
@@ -436,7 +456,6 @@ class Model:
             if pair.rank_student > max_matched_rank:
                 max_matched_rank = pair.rank_student
         return max_matched_rank
-
 
     def _get_profile_string(self, rank_allocations):
         """Returns a string of the profile of the matching.
@@ -457,9 +476,6 @@ class Model:
         profile_string += '>'
         return profile_string
 
-
-
-
     def _get_profile(self, pair_assignments):
         """Returns the profile of the matching.
 
@@ -478,7 +494,6 @@ class Model:
         for pair in pair_assignments:
             rank_allocations[pair.rank_student - 1] += 1
         return rank_allocations
-
 
     def _get_max_lec_abs_diff(self, pair_assignments):
         """Returns the maximum lecturer absolute difference.
@@ -501,7 +516,6 @@ class Model:
                 max_lec_abs_diff = abs_diff
         return max_lec_abs_diff
 
-
     def _get_sum_lec_abs_diff(self, pair_assignments):
         """Returns a string containing the sum of lecturer absolute differences.
 
@@ -520,7 +534,6 @@ class Model:
         for abs_diff in lec_abs_diffs:
             sum_lec_abs_diff += abs_diff
         return sum_lec_abs_diff
-
 
     def _get_lec_abs_diffs(self, pair_assignments):
         """Returns the lecturer absolute differences.
@@ -549,7 +562,6 @@ class Model:
 
         return lec_abs_diffs
 
-
     def _get_detailed_student_info(self, pair_assignments):
         """Returns a string containing detailed student matching output.
 
@@ -562,15 +574,14 @@ class Model:
 
         st_lines = [''] * self.num_students
         for pair in pair_assignments:
-            st_lines[pair.student_index] = ('s_' + str(pair.studentID) + 
-                ': p_' + str(pair.projectID) + ' (l_' + str(pair.lecturerID) + 
-                ') \n')
+            st_lines[pair.student_index] = ('s_' + str(pair.studentID) +
+                                            ': p_' + str(pair.projectID) + ' (l_' + str(pair.lecturerID) +
+                                            ') \n')
 
         for i, entry in enumerate(st_lines):
             if entry == '':
                 st_lines[i] = ('s_' + str(i + 1) + ' no assignment\n')
         return ''.join(st_lines)
-
 
     def _get_detailed_project_info(self, pair_assignments):
         """Returns a string containing detailed project matching output.
@@ -585,25 +596,24 @@ class Model:
         p_assignments = [''] * self.num_projects
         p_num_assignments = [0] * self.num_projects
         for pair in pair_assignments:
-            p_assignments[pair.project_index] += ('s_' + str(pair.studentID) + 
-                ' ')
+            p_assignments[pair.project_index] += ('s_' + str(pair.studentID) +
+                                                  ' ')
             p_num_assignments[pair.project_index] += 1
 
         pr_lines = [''] * self.num_projects
 
         for j, entry in enumerate(p_assignments):
-            pr_lines[j] += ('p_' + str(j + 1) + ' (l_' + 
-                str(self.proj_lecturers[j]) + '): ')
+            pr_lines[j] += ('p_' + str(j + 1) + ' (l_' +
+                            str(self.proj_lecturers[j]) + '): ')
 
             if entry == '':
                 pr_lines[j] += 'no assignment '
             else:
                 pr_lines[j] += entry
 
-            pr_lines[j] += '    ' + (str(p_num_assignments[j]) + '/' + 
-                str(self.proj_upper_quotas[j]) + '\n')
+            pr_lines[j] += '    ' + (str(p_num_assignments[j]) + '/' +
+                                     str(self.proj_upper_quotas[j]) + '\n')
         return ''.join(pr_lines)
-
 
     def _get_detailed_lecturer_info(self, pair_assignments):
         """Returns a string containing detailed lecturer matching output.
@@ -618,8 +628,8 @@ class Model:
         l_assignments = [''] * self.num_lecturers
         l_num_assignments = [0] * self.num_lecturers
         for pair in pair_assignments:
-            l_assignments[pair.lecturer_index] += ('s_' + str(pair.studentID) + 
-                ' (' + 'p_' + str(pair.projectID) + ') ')
+            l_assignments[pair.lecturer_index] += ('s_' + str(pair.studentID) +
+                                                   ' (' + 'p_' + str(pair.projectID) + ') ')
             l_num_assignments[pair.lecturer_index] += 1
 
         lec_lines = [''] * self.num_lecturers
@@ -632,11 +642,10 @@ class Model:
             else:
                 lec_lines[k] += entry
 
-            lec_lines[k] += '    ' + (str(l_num_assignments[k]) + '/' + 
-                str(self.lec_upper_quotas[k]) + ' (' + 
-                str(self.lec_targets[k]) + ')\n')
+            lec_lines[k] += '    ' + (str(l_num_assignments[k]) + '/' +
+                                      str(self.lec_upper_quotas[k]) + ' (' +
+                                      str(self.lec_targets[k]) + ')\n')
         return ''.join(lec_lines)
-
 
     def check_stability(self, pair_assignments_with_none):
         """Checks whether a matching is stable.
@@ -648,10 +657,14 @@ class Model:
           Whether the current matching is stable.
         """
 
-        p_num_assignments = self.get_num_assignments_projects(pair_assignments_with_none)
-        l_num_assignments = self.get_num_assignments_lecturers(pair_assignments_with_none)
-        worst_rank_projects = self.get_worst_rank_projects(pair_assignments_with_none)
-        worst_rank_lecturers = self.get_worst_rank_lecturers(pair_assignments_with_none)
+        p_num_assignments = self.get_num_assignments_projects(
+            pair_assignments_with_none)
+        l_num_assignments = self.get_num_assignments_lecturers(
+            pair_assignments_with_none)
+        worst_rank_projects = self.get_worst_rank_projects(
+            pair_assignments_with_none)
+        worst_rank_lecturers = self.get_worst_rank_lecturers(
+            pair_assignments_with_none)
 
         # Iterate over the student preference list checking if the student
         # would like to move.
@@ -677,21 +690,21 @@ class Model:
                     blocking_pair_3a = True
 
                 # blocking_pair_3b
-                if (p_undersubscribed and not l_undersubscribed and 
+                if (p_undersubscribed and not l_undersubscribed and
                     ((not assigned_pair_i == None and assigned_pair_i.lecturer_index == pair.lecturer_index) or
                         pair.rank_lecturer < worst_rank_lecturers[pair.lecturer_index])):
                     blocking_pair_3b = True
 
                 # blocking_pair_3c
-                if (not p_undersubscribed and 
-                    pair.rank_lecturer < worst_rank_projects[pair.project_index]):
+                if (not p_undersubscribed and
+                        pair.rank_lecturer < worst_rank_projects[pair.project_index]):
                     blocking_pair_3c = True
 
-                blocking_pair = blocking_pair_2 and (blocking_pair_3a or blocking_pair_3b or blocking_pair_3c)
+                blocking_pair = blocking_pair_2 and (
+                    blocking_pair_3a or blocking_pair_3b or blocking_pair_3c)
                 if blocking_pair:
                     return False
         return True
-
 
     def get_num_assignments_projects(self, pair_assignments_with_none):
         """Returns the number of assignments for each project.
@@ -708,7 +721,6 @@ class Model:
                 num_assignments[pair.project_index] += 1
         return num_assignments
 
-
     def get_num_assignments_lecturers(self, pair_assignments_with_none):
         """Returns the number of assignments for each lecturer.
 
@@ -723,7 +735,6 @@ class Model:
             if not pair == None:
                 num_assignments[pair.lecturer_index] += 1
         return num_assignments
-
 
     def get_worst_rank_projects(self, pair_assignments_with_none):
         """Returns the worst rank of the worst student assigned to each project.
@@ -742,7 +753,6 @@ class Model:
                 elif pair.rank_lecturer > worst_ranks[pair.project_index]:
                     worst_ranks[pair.project_index] = pair.rank_lecturer
         return worst_ranks
-
 
     def get_worst_rank_lecturers(self, pair_assignments_with_none):
         """Returns the worst rank of the worst student assigned to each lecturer.
@@ -796,7 +806,6 @@ class Pair:
         self.project_index = self.projectID - 1
         self.rank_student = rank_student
 
-
     def set_lecturer(self, lecturerID):
         """Sets the lecturer ID and index.
 
@@ -806,7 +815,6 @@ class Pair:
         self.lecturerID = lecturerID
         self.lecturer_index = self.lecturerID - 1
 
-    
     def set_lecturer_rank(self, rank):
         """Sets the lecturer ID and index.
 
@@ -814,8 +822,7 @@ class Pair:
             rank: Rank of the student of this Pair for this lecturer.
         """
         self.rank_lecturer = rank
-            
-        
+
     def pulp_setup(self, prob, alphabeta):
         """Sets up the Pulp variables for this Pair.
 
@@ -833,9 +840,8 @@ class Pair:
             var_name_beta = ('b' + var_name)
             self.beta_var = LpVariable(var_name_beta, cat='Binary')
 
-
     def __str__(self):
         """String representation of this Pair."""
-        return ('(s' + str(self.studentID) + ' p' + str(self.projectID) + 
-            ' rs' + str(self.rank_student) + ' l' + str(self.lecturerID) + 
-            ' rl' + str(self.rank_lecturer) + ')')
+        return ('(s' + str(self.studentID) + ' p' + str(self.projectID) +
+                ' rs' + str(self.rank_student) + ' l' + str(self.lecturerID) +
+                ' rl' + str(self.rank_lecturer) + ')')
