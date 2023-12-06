@@ -339,7 +339,8 @@ class Model:
         results = {}
         pair_assignments = self._get_pair_assignments()
         profile = self._get_profile(pair_assignments)
-
+        results["ranks"] = list(
+            map(lambda x: x.rank_student, self._get_pair_assignments()))
         results["matching"] = list(
             map(int, (self._get_matching_list(pair_assignments))))
         results["profile"] = profile

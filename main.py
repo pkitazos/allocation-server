@@ -26,14 +26,12 @@ app = FastAPI()
 
 def hash_lecturers(lecturer_arr: list[tuple[str, int, int, int]]):
     to_int = {}
-    to_str = {}
     lecturer_data = []
     for idx, lecturer in enumerate(lecturer_arr, 1):
         (lecturer_id, lb, t, ub) = lecturer
         to_int[lecturer_id] = idx
-        to_str[idx] = lecturer_id
         lecturer_data.append([lb, t, ub])
-    return (to_int, to_str, lecturer_data)
+    return (to_int, lecturer_data)
 
 
 def hash_projects(project_arr: list[tuple[int, int, str]], lecturer_to_int: dict[str, int]):
@@ -51,13 +49,15 @@ def hash_projects(project_arr: list[tuple[int, int, str]], lecturer_to_int: dict
 
 def hash_students(student_arr: list[list[str]], to_int: dict[str, int]) -> list[list[int]]:
     student_data = []
-    for student in student_arr:
+    to_str = {}
+    for idx, (student_id, *student) in enumerate(student_arr):
         student_data.append(list(map(lambda x: to_int[x], student)))
-    return student_data
+        to_str[idx] = student_id
+    return to_str, student_data
 
 
-def format_matching(matching_arr: list[int], p_to_str: dict[int, str]):
-    return [p_to_str[x] for x in matching_arr]
+def format_matching(matching_arr: list[int], ranks: list[int], p_to_str: dict[int, str], s_to_str: dict[int, str]):
+    return [(s_to_str[idx], p_to_str[x], r) for idx, (x, r) in enumerate(zip(matching_arr, ranks))]
 
 
 @app.post("/")
@@ -73,9 +73,9 @@ async def root(data: ClientMatchingDataCustomArgs):
 async def generous(data: ClientMatchingData):
     args = ['-na', '3', '-maxsize', '1', '-gen', '2', '-lsb', '3']
 
-    l_to_int, l_to_str, lecturer_data = hash_lecturers(data.lecturers)
+    l_to_int, lecturer_data = hash_lecturers(data.lecturers)
     p_to_int, p_to_str, project_data = hash_projects(data.projects, l_to_int)
-    student_data = hash_students(data.students, p_to_int)
+    s_to_str, student_data = hash_students(data.students, p_to_int)
 
     alg_data = ServerMatchingData(
         students=student_data,
@@ -83,16 +83,17 @@ async def generous(data: ClientMatchingData):
         lecturers=lecturer_data
     )
 
-    print(alg_data)
     my_solver = solver.Solver(args, alg_data)
     my_solver.solve(msg=False, timeLimit=None, threads=None, write=False)
     response_data = my_solver.get_results_object()
 
     matching = response_data["matching"]
-    # formatted_matching = format_matching(matching, p_to_str)
-    response_data["matching"] = format_matching(matching, p_to_str)
-    print(f"matching solution: {response_data}")
-    # print(my_solver.get_results())
+    response_data["matching"] = format_matching(
+        matching, response_data["ranks"], p_to_str, s_to_str)
+
+    print(response_data)
+
+    print(my_solver.get_results())
     return {"message": "I am the generous algorithm", "data": response_data}
 
 
