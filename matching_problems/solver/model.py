@@ -340,7 +340,8 @@ class Model:
         pair_assignments = self._get_pair_assignments()
         profile = self._get_profile(pair_assignments)
 
-        results["matching"] = self._get_matching_list(pair_assignments)
+        results["matching"] = list(
+            map(int, (self._get_matching_list(pair_assignments))))
         results["profile"] = profile
         results["weight"] = sum((idx+1)*x for idx, x in enumerate(profile))
         results["size"] = sum(profile)
