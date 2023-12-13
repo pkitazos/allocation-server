@@ -4,7 +4,8 @@ from pydantic import BaseModel
 
 
 class ClientMatchingData(BaseModel):
-    students: list[list[str]]  # list or projectIds for each student
+    # list or projectIds for each student
+    students: list[list[str]]
     # list of projects and their details
     projects: list[tuple[str, int, int, str]]
     # list of lecturers and their details
@@ -91,8 +92,6 @@ async def generous(data: ClientMatchingData):
     response_data["matching"] = format_matching(
         matching, response_data["ranks"], p_to_str, s_to_str)
 
-    print(response_data)
-
     print(my_solver.get_results())
     return {"message": "I am the generous algorithm", "data": response_data}
 
@@ -100,9 +99,26 @@ async def generous(data: ClientMatchingData):
 @app.post("/greedy")
 async def greedy(data: ClientMatchingData):
     args = ['-na', '3', '-maxsize', '1', '-gre', '2', '-lsb', '3']
-    my_solver = solver.Solver(args, data)
+
+    l_to_int, lecturer_data = hash_lecturers(data.lecturers)
+    p_to_int, p_to_str, project_data = hash_projects(data.projects, l_to_int)
+    s_to_str, student_data = hash_students(data.students, p_to_int)
+
+    alg_data = ServerMatchingData(
+        students=student_data,
+        projects=project_data,
+        lecturers=lecturer_data
+    )
+
+    my_solver = solver.Solver(args, alg_data)
+
     my_solver.solve(msg=False, timeLimit=None, threads=None, write=False)
     response_data = my_solver.get_results_object()
+
+    matching = response_data["matching"]
+    response_data["matching"] = format_matching(
+        matching, response_data["ranks"], p_to_str, s_to_str)
+
     print(my_solver.get_results())
     return {"message": "I am the greedy algorithm", "data": response_data}
 
@@ -110,9 +126,26 @@ async def greedy(data: ClientMatchingData):
 @app.post("/minimum-cost")
 async def minimum_cost(data: ClientMatchingData):
     args = ['-na', '3', '-maxsize', '1', '-mincost', '2', '-lsb', '3']
-    my_solver = solver.Solver(args, data)
+
+    l_to_int, lecturer_data = hash_lecturers(data.lecturers)
+    p_to_int, p_to_str, project_data = hash_projects(data.projects, l_to_int)
+    s_to_str, student_data = hash_students(data.students, p_to_int)
+
+    alg_data = ServerMatchingData(
+        students=student_data,
+        projects=project_data,
+        lecturers=lecturer_data
+    )
+
+    my_solver = solver.Solver(args, alg_data)
+
     my_solver.solve(msg=False, timeLimit=None, threads=None, write=False)
     response_data = my_solver.get_results_object()
+
+    matching = response_data["matching"]
+    response_data["matching"] = format_matching(
+        matching, response_data["ranks"], p_to_str, s_to_str)
+
     print(my_solver.get_results())
     return {"message": "I am the the minimum cost algorithm", "data": response_data}
 
@@ -120,20 +153,35 @@ async def minimum_cost(data: ClientMatchingData):
 @app.post("/greedy-generous")
 async def greedy_generous(data: ClientMatchingData):
     gre_args = ['-na', '3', '-maxsize', '1', '-gre', '2', '-lsb', '3']
-    gre_solver = solver.Solver(gre_args, data)
+
+    l_to_int, lecturer_data = hash_lecturers(data.lecturers)
+    p_to_int, p_to_str, project_data = hash_projects(data.projects, l_to_int)
+    s_to_str, student_data = hash_students(data.students, p_to_int)
+
+    alg_data = ServerMatchingData(
+        students=student_data,
+        projects=project_data,
+        lecturers=lecturer_data
+    )
+
+    gre_solver = solver.Solver(gre_args, alg_data)
     gre_solver.solve(msg=False, timeLimit=None, threads=None, write=False)
     gre_response_data = gre_solver.get_results_object()
     print(gre_response_data)
 
     gre_degree = gre_response_data["degree"]
-    original_preferences = data.students
-    new_preferences = [x[:gre_degree] for x in original_preferences]
-    new_data = data.model_copy()
-    new_data.students = new_preferences
+    original_preferences = alg_data.students
+    new_data = alg_data.model_copy()
+    new_data.students = [x[:gre_degree] for x in original_preferences]
     gen_args = ['-na', '3', '-maxsize', '1', '-gen', '2', '-lsb', '3']
     gen_solver = solver.Solver(gen_args, new_data)
     gen_solver.solve(msg=False, timeLimit=None, threads=None, write=False)
     response_data = gen_solver.get_results_object()
+
+    matching = response_data["matching"]
+    response_data["matching"] = format_matching(
+        matching, response_data["ranks"], p_to_str, s_to_str)
+
     print(gen_solver.get_results())
 
     return {"message": "I am the greedy-generous algorithm", "data": response_data}
