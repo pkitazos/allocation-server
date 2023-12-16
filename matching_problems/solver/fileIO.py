@@ -248,6 +248,7 @@ def import_model(data):
     Returns:
       The model representation of the instance.
     """
+
     model = _import_from_obj(data)
     model.set_project_lists()
     model.set_lecturer_lists()
