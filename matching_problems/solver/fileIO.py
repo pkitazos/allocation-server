@@ -1,3 +1,4 @@
+from src.server_data import ServerData
 from .enums import Instance_options
 from .model import Model, Pair
 
@@ -24,20 +25,6 @@ def _get_simple_pref_list_and_ranks(pref_list):
     in_tie = False
 
     for i in range(len(pref_list)):
-        # if '(' in pref_list[i]:
-        #     elem_num = int(pref_list[i].replace('(', ''))
-        #     simp_pref_list.append(elem_num)
-        #     simp_ranks.append(rank)
-        #     in_tie = True
-
-        # elif ')' in pref_list[i]:
-        #     elem_num = int(pref_list[i].replace(')', ''))
-        #     simp_pref_list.append(elem_num)
-        #     simp_ranks.append(rank)
-        #     rank += 1
-        #     in_tie = False
-
-        # else:
         simp_pref_list.append(int(pref_list[i]))
         simp_ranks.append(rank)
         if not in_tie:
@@ -200,14 +187,7 @@ def _import_from_file(filename, instance_options):
     return model
 
 
-# type Data {
-#     students: number[][]
-#     projects: number[][]
-#     lecturers: number[][]
-# }
-
-
-def _import_from_obj(data):
+def _import_from_obj(data: ServerData):
     model = Model()
     project_lecturers = []
 
@@ -224,7 +204,7 @@ def _import_from_obj(data):
     for project_info in data.projects:
         model.proj_lower_quotas.append(project_info[0])
         model.proj_upper_quotas.append(project_info[1])
-        project_lecturers.append(project_info[2])  # lecturer id
+        project_lecturers.append(project_info[2])
 
     # lecturer information
     for lecturer_info in data.lecturers:
@@ -254,20 +234,3 @@ def import_model(data):
     model.set_lecturer_lists()
     model.set_rank_lists()
     return model
-
-
-# def import_model(filename, instance_options):
-#     """Returns a completely initialised model.
-
-#     Args:
-#       filename: The file name of the file to import from.
-#       instance_options: User chosen instance options.
-
-#     Returns:
-#       The model representation of the instance.
-#     """
-#     model = _import_from_file(filename, instance_options)
-#     model.set_project_lists()
-#     model.set_lecturer_lists()
-#     model.set_rank_lists()
-#     return model
