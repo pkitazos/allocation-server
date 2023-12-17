@@ -1,3 +1,4 @@
+from .result import Result
 from .enums import *
 
 from pulp import *
@@ -335,19 +336,7 @@ class Model:
         Returns:
           The assignments, profile, weight, and size of the matching as a dictionary.
         """
-
-        results = {}
-        pair_assignments = self._get_pair_assignments()
-        profile = self._get_profile(pair_assignments)
-        results["ranks"] = list(
-            map(lambda x: x.rank_student, self._get_pair_assignments()))
-        results["matching"] = list(
-            map(int, (self._get_matching_list(pair_assignments))))
-        results["profile"] = profile
-        results["weight"] = sum((idx+1)*x for idx, x in enumerate(profile))
-        results["size"] = sum(profile)
-        results["degree"] = self._get_degree(pair_assignments)
-        return results
+        return Result(self)
 
     def _get_pair_assignments(self):
         """Returns the matched Pairs of the matching.
