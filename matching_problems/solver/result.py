@@ -36,8 +36,8 @@ class Result:
         matchups = []
         for idx, (x, r) in enumerate(zip(self.matching_list, self.ranks)):
             student_id = s_to_str[idx]
-            project_id = safe_index(p_to_str, x)
-            lecturer_id = safe_index(project_to_lecturer, project_id)
+            project_id = safe_index(p_to_str, x, "0")
+            lecturer_id = safe_index(project_to_lecturer, project_id, "0")
 
             project_capacities = safe_index(
                 d=project_to_capacities,
