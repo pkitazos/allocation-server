@@ -17,10 +17,14 @@ def run_solver(args: list[str], data: ServerData):
 @app.post("/")
 async def root(data: RequestDataWithArgs):
     args = data.args
-    my_solver = solver.Solver(args, data)
-    my_solver.solve(msg=False, timeLimit=None, threads=None, write=False)
-    print(my_solver.get_results())
-    return {"message": "I am an algorithm"}
+    req_data = RequestData(students=data.students,
+                           projects=data.projects,
+                           supervisors=data.supervisors)
+    processing_data = ServerData(req_data)
+    result = run_solver(args, processing_data)
+    result.format_result(*processing_data.get_hash_tables())
+
+    return {"message": "I am an algorithm", "data": result.to_json()}
 
 
 @app.post("/generous")
