@@ -1,3 +1,4 @@
+from pprint import pprint
 from matching_problems import solver
 from fastapi import FastAPI
 from src.request_data import RequestData, RequestDataWithArgs
@@ -24,6 +25,7 @@ async def root(data: RequestDataWithArgs):
     result = run_solver(args, processing_data)
     result.format_result(*processing_data.get_hash_tables())
 
+    pprint(result.to_json())
     return {"message": "I am an algorithm", "data": result.to_json()}
 
 
@@ -35,6 +37,7 @@ async def generous(data: RequestData):
     result = run_solver(args, processing_data)
     result.format_result(*processing_data.get_hash_tables())
 
+    pprint(result.to_json())
     return {"message": "I am the generous algorithm", "data": result.to_json()}
 
 
@@ -46,6 +49,7 @@ async def greedy(data: RequestData):
     result = run_solver(args, processing_data)
     result.format_result(*processing_data.get_hash_tables())
 
+    pprint(result.to_json())
     return {"message": "I am the greedy algorithm", "data": result.to_json()}
 
 
@@ -57,6 +61,7 @@ async def minimum_cost(data: RequestData):
     result = run_solver(args, processing_data)
     result.format_result(*processing_data.get_hash_tables())
 
+    pprint(result.to_json())
     return {"message": "I am the the minimum cost algorithm", "data": result.to_json()}
 
 
@@ -73,4 +78,5 @@ async def greedy_generous(data: RequestData):
     result = run_solver(gen_args, processing_data)
     result.format_result(*processing_data.get_hash_tables())
 
+    pprint(result.to_json())
     return {"message": "I am the greedy-generous algorithm", "data": result.to_json()}
