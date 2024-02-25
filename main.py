@@ -4,9 +4,10 @@ from fastapi import FastAPI
 from src.request_data import RequestData, RequestDataWithArgs
 from src.server_data import ServerData
 
+from src.test_file import new_real_test_data
+
 
 app = FastAPI()
-
 
 def run_solver(args: list[str], data: ServerData):
     matching_solver = solver.Solver(args, data)
@@ -30,10 +31,12 @@ async def root(data: RequestDataWithArgs):
 
 
 @app.post("/generous")
-async def generous(data: RequestData):
+async def generous():
     args = ['-na', '3', '-maxsize', '1', '-gen', '2', '-lsb', '3']
 
-    processing_data = ServerData(data)
+    processing_data = ServerData(new_real_test_data)
+    print("----->>", new_real_test_data)
+    print("----->>", processing_data)
     result = run_solver(args, processing_data)
     result.format_result(*processing_data.get_hash_tables())
 

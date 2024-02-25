@@ -3,8 +3,8 @@ from .matching_details import MatchingDetails, ProjectCapacities, SupervisorCapa
 
 
 def safe_index(d: dict, x: int, default_val=0):
-    return d[x] if x != 0 else default_val
-
+    return d[x] if x in d else default_val
+    
 
 class Result:
     def __init__(self, model):
