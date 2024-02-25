@@ -29,6 +29,11 @@ async def root(data: RequestDataWithArgs):
     pprint(result.to_json())
     return {"message": "I am an algorithm", "data": result.to_json()}
 
+@app.post("/hello")
+async def root():
+
+    return {"message": "hello"}
+
 
 @app.post("/generous")
 async def generous():
