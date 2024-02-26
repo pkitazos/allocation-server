@@ -29,19 +29,12 @@ async def root(data: RequestDataWithArgs):
     pprint(result.to_json())
     return {"message": "I am an algorithm", "data": result.to_json()}
 
-@app.post("/hello")
-async def root():
-
-    return {"message": "hello"}
-
 
 @app.post("/generous")
-async def generous():
+async def generous(data: RequestData):
     args = ['-na', '3', '-maxsize', '1', '-gen', '2', '-lsb', '3']
 
-    processing_data = ServerData(new_real_test_data)
-    print("----->>", new_real_test_data)
-    print("----->>", processing_data)
+    processing_data = ServerData(data)
     result = run_solver(args, processing_data)
     result.format_result(*processing_data.get_hash_tables())
 
