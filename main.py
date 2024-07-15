@@ -4,8 +4,6 @@ from fastapi import FastAPI
 from src.request_data import RequestData, RequestDataWithArgs
 from src.server_data import ServerData
 
-from src.test_file import new_real_test_data
-
 
 app = FastAPI()
 
