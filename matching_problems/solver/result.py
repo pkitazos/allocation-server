@@ -1,10 +1,12 @@
 import copy
+
+from src.server_data import HashTables
 from .matching_details import MatchingDetails, ProjectCapacities, SupervisorCapacities
 
 
 def safe_index(d: dict, x: int, default_val=0):
     return d[x] if x in d else default_val
-    
+
 
 class Result:
     def __init__(self, model):
@@ -15,39 +17,35 @@ class Result:
         self.profile = profile
         self.degree = model._get_degree(pair_assignments)
         self.size = sum(profile)
-        self.weight = sum((idx+1)*x for idx, x in enumerate(profile)),
-        self.cost = model._get_cost(pair_assignments),
+        self.weight = sum((idx + 1) * x for idx, x in enumerate(profile))
+        self.cost = model._get_cost(pair_assignments)
         self.cost_sq = model._get_cost_sq(pair_assignments)
-        self.max_lec_abs_diff = model._get_max_lec_abs_diff(pair_assignments),
-        self.sum_lec_abs_diff = model._get_sum_lec_abs_diff(pair_assignments),
+        self.max_lec_abs_diff = model._get_max_lec_abs_diff(pair_assignments)
+        self.sum_lec_abs_diff = model._get_sum_lec_abs_diff(pair_assignments)
         self.matching_list = matching
         self.matching_details = None
         self.ranks = [x.rank_student for x in pair_assignments]
 
-    # TODO: refactor method signature
-    def format_result(
-            self,
-            p_to_str: dict[int, str],
-            s_to_str: dict[int, str],
-            project_to_lecturer: dict[str, str],
-            project_to_capacities: dict[str, ProjectCapacities],
-            lecturer_to_capacities: dict[str, SupervisorCapacities]):
-
+    def format_result(self, h:HashTables):
         matchups = []
         for idx, (x, r) in enumerate(zip(self.matching_list, self.ranks)):
-            student_id = s_to_str[idx]
-            project_id = safe_index(p_to_str, x, "0")
-            lecturer_id = safe_index(project_to_lecturer, project_id, "0")
+            student_id = h.student__int_to_id[idx]
+            project_id = safe_index(h.project__int_to_id, x, "0")
+            lecturer_id = safe_index(h.project__id_to_lecturer, project_id, "0")
 
             project_capacities = safe_index(
-                d=project_to_capacities,
+                d=h.project__id_to_capacities,
                 x=project_id,
-                default_val=ProjectCapacities(lower_bound=0, upper_bound=0))
+                default_val=ProjectCapacities(lower_bound=0, upper_bound=0),
+            )
 
             supervisor_capacities = safe_index(
-                d=lecturer_to_capacities,
+                d=h.lecturer__id_to_capacities,
                 x=lecturer_id,
-                default_val=SupervisorCapacities(lower_bound=0, target=0, upper_bound=0))
+                default_val=SupervisorCapacities(
+                    lower_bound=0, target=0, upper_bound=0
+                ),
+            )
 
             matching_details = MatchingDetails(
                 student_id=student_id,
@@ -55,7 +53,7 @@ class Result:
                 supervisor_id=lecturer_id,
                 rank=r,
                 project_capacities=project_capacities,
-                supervisor_capacities=supervisor_capacities
+                supervisor_capacities=supervisor_capacities,
             )
 
             matchups.append(matching_details)
@@ -66,11 +64,27 @@ class Result:
             "profile": self.profile,
             "degree": self.degree,
             "size": self.size,
-            "weight": self.weight[0],
-            "cost": self.cost[0],
+            "weight": self.weight,
+            "cost": self.cost,
             "costSq": self.cost_sq,
-            "maxLecAbsDiff": self.max_lec_abs_diff[0],
-            "sumLecAbsDiff": self.sum_lec_abs_diff[0],
+            "maxLecAbsDiff": self.max_lec_abs_diff,
+            "sumLecAbsDiff": self.sum_lec_abs_diff,
             "matching": self.matching_details,
-            "ranks": self.ranks
+            "ranks": self.ranks,
         }
+
+    def display(self):
+        print(f"profile: {self.profile}")
+        print(f"degree: {self.degree}")
+        print(f"size: {self.size}")
+        print(f"weight: {self.weight}")
+        print(f"cost: {self.cost}")
+        print(f"costSq: {self.cost_sq}")
+        print(f"maxLecAbsDiff: {self.max_lec_abs_diff}")
+        print(f"sumLecAbsDiff: {self.sum_lec_abs_diff}")
+        print(f"ranks: {self.ranks}")
+        print("matching: [")
+        for res in self.matching_details:
+            print(f"student: {res.student_id}, project: {res.project_id}, lecturer: {res.supervisor_id}, rank: {res.preference_rank}")
+        print("]")
+    

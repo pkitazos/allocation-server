@@ -75,8 +75,20 @@ class ServerData:
         self.students = [x[:degree] for x in student_data]
 
     def get_hash_tables(self):
-        return (self.p_to_str,
-                self.s_to_str,
-                self.project_to_lecturer,
-                self.project_to_capacities,
-                self.lecturer_to_capacities)
+        return HashTables(self)
+
+
+class HashTables:
+    def __init__(self, serverData:ServerData):
+        self.lecturer__id_to_int = serverData.l_to_int
+        self.lecturer__id_to_capacities = serverData.lecturer_to_capacities
+       
+        self.project__id_to_int = serverData.p_to_int
+        self.project__int_to_id = serverData.p_to_str
+        self.project__id_to_lecturer = serverData.project_to_lecturer
+        self.project__id_to_capacities = serverData.project_to_capacities
+
+        self.student__int_to_id = serverData.s_to_str
+    
+
+
