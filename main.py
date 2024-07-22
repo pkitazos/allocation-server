@@ -25,6 +25,9 @@ async def root(data: RequestDataWithArgs):
     )
     processing_data = ServerData(req_data)
     status, result = run_solver(args, processing_data)
+    if status == "Infeasible":
+        return ServerResponse.infeasible()
+    
     result.format_result(processing_data.get_hash_tables())
     result.display()
     response = ServerResponse(status, data=result.to_json())
@@ -35,6 +38,9 @@ async def root(data: RequestDataWithArgs):
 async def generous(data: RequestData):
     processing_data = ServerData(data)
     status, result = run_solver(Args.GENEROUS, processing_data)
+    if status == "Infeasible":
+        return ServerResponse.infeasible()
+    
     result.format_result(processing_data.get_hash_tables())
     result.display()
     response = ServerResponse(status, data=result.to_json())
@@ -45,6 +51,9 @@ async def generous(data: RequestData):
 async def greedy(data: RequestData):
     processing_data = ServerData(data)
     status, result = run_solver(Args.GREEDY, processing_data)
+    if status == "Infeasible":
+        return ServerResponse.infeasible()
+    
     result.format_result(processing_data.get_hash_tables())
     result.display()
     response = ServerResponse(status, data=result.to_json())
@@ -55,6 +64,9 @@ async def greedy(data: RequestData):
 async def minimum_cost(data: RequestData):
     processing_data = ServerData(data)
     status, result = run_solver(Args.MINCOST, processing_data)
+    if status == "Infeasible":
+        return ServerResponse.infeasible()
+    
     result.format_result(processing_data.get_hash_tables())
     result.display()
     response = ServerResponse(status, data=result.to_json())
@@ -70,6 +82,9 @@ async def greedy_generous(data: RequestData):
     
     processing_data.truncate(gre_result.degree)
     status, result = run_solver(Args.GENEROUS, processing_data)
+    if status == "Infeasible":
+        return ServerResponse.infeasible()
+    
     result.format_result(processing_data.get_hash_tables())
     result.display()
     response = ServerResponse(status, data=result.to_json())
