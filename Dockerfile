@@ -1,8 +1,4 @@
-FROM python:3.9
-
-RUN apt-get update && apt-get install -y \
-    coinor-cbc glpk-utils \  # Install CBC and GLPK solvers \
-    && rm -rf /var/lib/apt/lists/*
+FROM tiangolo/uvicorn-gunicorn-fastapi:python3.9
 
 WORKDIR /app
 
