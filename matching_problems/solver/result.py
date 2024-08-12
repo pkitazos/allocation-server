@@ -59,6 +59,21 @@ class Result:
             matchups.append(matching_details)
         self.matching_details = copy.deepcopy(matchups)
 
+    def validate(self):
+        new_profile = [0 for _ in self.profile]
+        new_matching_details = []
+        for  matched_pair in self.matching_details:
+            if matched_pair.project_id == "0":
+                continue
+            new_profile[matched_pair.preference_rank - 1] += 1
+            new_matching_details.append(matched_pair)
+        
+        self.profile = new_profile
+        self.size = sum(self.profile)
+        self.weight = sum((idx + 1) * x for idx, x in enumerate(self.profile))
+        self.matching_details = new_matching_details
+
+
     def to_json(self):
         return {
             "profile": self.profile,

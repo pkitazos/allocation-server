@@ -29,7 +29,9 @@ async def root(data: RequestDataWithArgs):
         return ServerResponse.infeasible()
     
     result.format_result(processing_data.get_hash_tables())
+    result.validate()
     result.display()
+
     response = ServerResponse(status, data=result.to_json())
     return response.to_json()
 
@@ -42,7 +44,9 @@ async def generous(data: RequestData):
         return ServerResponse.infeasible()
     
     result.format_result(processing_data.get_hash_tables())
+    result.validate()
     result.display()
+
     response = ServerResponse(status, data=result.to_json())
     return response.to_json()
 
@@ -55,7 +59,9 @@ async def greedy(data: RequestData):
         return ServerResponse.infeasible()
     
     result.format_result(processing_data.get_hash_tables())
+    result.validate()
     result.display()
+
     response = ServerResponse(status, data=result.to_json())
     return response.to_json()
 
@@ -68,7 +74,9 @@ async def minimum_cost(data: RequestData):
         return ServerResponse.infeasible()
     
     result.format_result(processing_data.get_hash_tables())
+    result.validate()
     result.display()
+
     response = ServerResponse(status, data=result.to_json())
     return response.to_json()
 
@@ -86,6 +94,8 @@ async def greedy_generous(data: RequestData):
         return ServerResponse.infeasible()
     
     result.format_result(processing_data.get_hash_tables())
+    result.validate()
     result.display()
+    
     response = ServerResponse(status, data=result.to_json())
     return response.to_json()
