@@ -1,6 +1,6 @@
 import copy
 
-from src.server_data import HashTables
+from src.hash_tables import HashTables
 from .matching_details import MatchingDetails, ProjectCapacities, SupervisorCapacities
 
 
