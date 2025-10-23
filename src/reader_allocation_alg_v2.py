@@ -92,9 +92,7 @@ class MinCostMaxFlow:
 # ---------------- Allocation using MCMF ---------------- #
 
 
-def allocate_readers_with_capacity_hard(
-    data: RpaMatchingInput, penalty_unacceptable=5, penalty_neutral=1
-) -> RpaMatchingOutput:
+def allocate_readers_with_capacity_hard(data: RpaMatchingInput) -> RpaMatchingOutput:
     """
     Hard-capacity allocator using min-cost max-flow.
 
@@ -133,6 +131,9 @@ def allocate_readers_with_capacity_hard(
 
     # Deterministic ordering (helps tie-breaking)
     projects = sorted(data.allProjects)
+
+    penalty_unacceptable = len(projects) + 1
+
     readers = sorted(
         [
             {
