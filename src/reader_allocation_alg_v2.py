@@ -131,9 +131,6 @@ def allocate_readers_with_capacity_hard(data: RpaMatchingInput) -> RpaMatchingOu
 
     # Deterministic ordering (helps tie-breaking)
     projects = sorted(data.allProjects)
-
-    penalty_unacceptable = len(projects) + 1
-
     readers = sorted(
         [
             {
@@ -147,6 +144,10 @@ def allocate_readers_with_capacity_hard(data: RpaMatchingInput) -> RpaMatchingOu
         ],
         key=lambda r: r["id"],
     )
+
+    penalty_preferable = 0
+    penalty_neutral = 1
+    penalty_unacceptable = len(projects) + 1
 
     # --- algorithm starts
     # Graph nodes:
@@ -175,7 +176,7 @@ def allocate_readers_with_capacity_hard(data: RpaMatchingInput) -> RpaMatchingOu
             cost = penalty_neutral  # neutral
 
             if p in r["preferable"]:
-                cost = 0
+                cost = penalty_preferable
             elif p in r["unacceptable"]:
                 cost = penalty_unacceptable
 
