@@ -92,9 +92,7 @@ class MinCostMaxFlow:
 # ---------------- Allocation using MCMF ---------------- #
 
 
-def allocate_readers_with_capacity_hard(
-    data: RpaMatchingInput, penalty_unacceptable=5, penalty_neutral=1
-) -> RpaMatchingOutput:
+def allocate_readers_with_capacity_hard(data: RpaMatchingInput) -> RpaMatchingOutput:
     """
     Hard-capacity allocator using min-cost max-flow.
 
@@ -147,6 +145,10 @@ def allocate_readers_with_capacity_hard(
         key=lambda r: r["id"],
     )
 
+    penalty_preferable = 0
+    penalty_neutral = 1
+    penalty_unacceptable = len(projects) + 1
+
     # --- algorithm starts
     # Graph nodes:
     #  source(0)
@@ -174,7 +176,7 @@ def allocate_readers_with_capacity_hard(
             cost = penalty_neutral  # neutral
 
             if p in r["preferable"]:
-                cost = 0
+                cost = penalty_preferable
             elif p in r["unacceptable"]:
                 cost = penalty_unacceptable
 
