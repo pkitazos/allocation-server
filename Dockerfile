@@ -1,5 +1,5 @@
 FROM python:3.11.13-slim-bullseye
-LABEL org.opencontainers.image.source="https://github.com/pkitazos/matching-service"
+LABEL org.opencontainers.image.source="https://github.com/amps-kt/matching-service"
 COPY --from=ghcr.io/astral-sh/uv:latest /uv /bin/
 
 RUN groupadd matching
