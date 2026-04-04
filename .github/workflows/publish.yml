@@ -24,11 +24,14 @@ jobs:
         with:
           registry: ghcr.io
           username: ${{ github.actor }}
-          password: ${{ secrets.GHCR_PAT }}
+          password: ${{ secrets.GITHUB_TOKEN }}
 
       - name: "Build and push app"
         uses: docker/build-push-action@v5
         with:
           platforms: linux/amd64,linux/arm64
           push: true
-          tags: ghcr.io/pkitazos/matching-service:latest,ghcr.io/pkitazos/matching-service:${{ steps.date.outputs.date }},ghcr.io/pkitazos/matching-service:${{ github.sha }}
+          tags: |
+            ghcr.io/amps-kt/matching-service:${{ github.ref_name }}-latest
+            ghcr.io/amps-kt/matching-service:${{ github.ref_name }}-${{ steps.date.outputs.date }}
+            ghcr.io/amps-kt/matching-service:${{ github.ref_name }}-${{ github.sha }}
