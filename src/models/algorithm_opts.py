@@ -1,12 +1,6 @@
-from typing import Optional, Union
-from enum import Enum, auto
+from enum import Enum
 
-from pydantic import BaseModel
-
-
-# kill this
-class RequestDataWithArgs(SpaInput):
-    args: list[str]
+from src.models.spa_io import WireModel
 
 
 class OptimisationCriteria(Enum):
@@ -17,6 +11,7 @@ class OptimisationCriteria(Enum):
     MINSQCOST = "MINSQCOST"
     LSB = "LSB"
 
+    # the new_runner map, sorta makes this pointless
     def to_solver_flag(self) -> str:
         match self:
             case OptimisationCriteria.MAXSIZE:
@@ -33,17 +28,21 @@ class OptimisationCriteria(Enum):
                 return "-lsb"
 
 
-class CustomConfig(BaseModel):
-    flags: Union[
-        tuple[OptimisationCriteria],
-        tuple[OptimisationCriteria, OptimisationCriteria],
-        tuple[OptimisationCriteria, OptimisationCriteria, OptimisationCriteria],
-    ]
-    supervisorTargetModifier: int = 0
-    supervisorUpperQuotaModifier: int = 0
-    maxRank: Optional[int] = None
+class CustomConfig(WireModel):
+    flags: (
+        tuple[OptimisationCriteria]
+        | tuple[OptimisationCriteria, OptimisationCriteria]
+        | tuple[OptimisationCriteria, OptimisationCriteria, OptimisationCriteria]
+    )
 
+    supervisor_target_modifier: int = 0
+    supervisor_upper_quota_modifier: int = 0
+    max_rank: int | None = None
+
+    # and this probably
     def to_solver_flags(self) -> list[str]:
-        return ["-na", str(len(self.flags))] + flatten(
-            [[f.to_solver_flag(), str(i + 1)] for i, f in enumerate(self.flags)]
-        )
+        args: list[str] = []
+        for i, f in enumerate(self.flags, start=2):
+            args.append(f.to_solver_flag())
+            args.append(str(i))
+        return args

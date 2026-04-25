@@ -10,6 +10,11 @@ dependencies = [
     "fastapi[standard]>=0.115.5",
     "numpy==1.26.4",
     "PuLP==2.9.0",
+    "pydantic>=2.11.7",
     "pyparsing==3.1.4",
     "uvicorn",
 ]
+
+[tool.pyright]
+venvPath = "."
+venv = ".venv"

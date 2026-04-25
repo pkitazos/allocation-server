@@ -1,25 +1,25 @@
-from src.models.algorithm_opts import CustomConfig
-from src.models.spa_io import SpaInput, SpaOutput
-
 from fastapi import APIRouter
+
+from src.models.algorithm_opts import CustomConfig, OptimisationCriteria
+from src.models.spa_io import SpaInput, SpaOutput
 
 spa_router = APIRouter()
 
 
 @spa_router.post("/custom")
 def runCustom(config: CustomConfig, data: SpaInput) -> SpaOutput:
-    if config.maxRank != null:
-        data = data.truncate(config.maxRank)
+    if config.max_rank != None:
+        data = data.truncate(config.max_rank)
 
-    if config.supervisorTargetModifier != 0:
-        data = data.modSupervisorTarget(config.supervisorTargetModifier)
+    if config.supervisor_target_modifier != 0:
+        data = data.mod_supervisor_target(config.supervisor_target_modifier)
 
-    if config.supervisorUpperQuotaModifier != 0:
-        data = data.modSupervisorUpperBound(config.supervisorUpperQuotaModifier)
+    if config.supervisor_upper_quota_modifier != 0:
+        data = data.mod_supervisor_target(config.supervisor_upper_quota_modifier)
 
     flags = config.to_solver_flags()
 
-    solve(flags, data)
+    # solve(flags, data)
     ...
 
 
@@ -27,11 +27,11 @@ def runCustom(config: CustomConfig, data: SpaInput) -> SpaOutput:
 def generous(data: SpaInput) -> SpaOutput:
     # GENEROUS = ["-na", "3", "-maxsize", "1", "-gen", "2", "-lsb", "3"]
     config = CustomConfig(
-        flags=[
+        flags=(
             OptimisationCriteria.MAXSIZE,
             OptimisationCriteria.GEN,
             OptimisationCriteria.LSB,
-        ]
+        )
     )
     return runCustom(config, data)
 
@@ -40,11 +40,11 @@ def generous(data: SpaInput) -> SpaOutput:
 def greedy(data: SpaInput) -> SpaOutput:
     # GREEDY = ["-na", "3", "-maxsize", "1", "-gre", "2", "-lsb", "3"]
     config = CustomConfig(
-        flags=[
+        flags=(
             OptimisationCriteria.MAXSIZE,
             OptimisationCriteria.GRE,
             OptimisationCriteria.LSB,
-        ]
+        )
     )
     return runCustom(config, data)
 
@@ -62,10 +62,10 @@ def greedy_generous(data: SpaInput) -> SpaOutput:
 def mincost(data: SpaInput) -> SpaOutput:
     # MINCOST = ["-na", "3", "-maxsize", "1", "-mincost", "2", "-lsb", "3"]
     config = CustomConfig(
-        flags=[
+        flags=(
             OptimisationCriteria.MAXSIZE,
             OptimisationCriteria.MINCOST,
             OptimisationCriteria.LSB,
-        ]
+        )
     )
     return runCustom(Args.MINCOST, data)
