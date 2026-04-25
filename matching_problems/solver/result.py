@@ -26,7 +26,7 @@ class Result:
         self.matching_details = None
         self.ranks = [x.rank_student for x in pair_assignments]
 
-    def format_result(self, h:HashTables):
+    def format_result(self, h: HashTables):
         matchups = []
         for idx, (x, r) in enumerate(zip(self.matching_list, self.ranks)):
             student_id = h.student__int_to_id[idx]
@@ -62,17 +62,16 @@ class Result:
     def validate(self):
         new_profile = [0 for _ in self.profile]
         new_matching_details = []
-        for  matched_pair in self.matching_details:
+        for matched_pair in self.matching_details:
             if matched_pair.project_id == "0":
                 continue
             new_profile[matched_pair.preference_rank - 1] += 1
             new_matching_details.append(matched_pair)
-        
+
         self.profile = new_profile
         self.size = sum(self.profile)
         self.weight = sum((idx + 1) * x for idx, x in enumerate(self.profile))
         self.matching_details = new_matching_details
-
 
     def to_json(self):
         return {
@@ -100,6 +99,7 @@ class Result:
         print(f"ranks: {self.ranks}")
         print("matching: [")
         for res in self.matching_details:
-            print(f"student: {res.student_id}, project: {res.project_id}, lecturer: {res.supervisor_id}, rank: {res.preference_rank}")
+            print(
+                f"student: {res.student_id}, project: {res.project_id}, lecturer: {res.supervisor_id}, rank: {res.preference_rank}"
+            )
         print("]")
-    
