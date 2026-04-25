@@ -8,6 +8,10 @@ class StudentData(BaseModel):
     id: str
     preferences: list[str]
 
+    def truncate(self, degree: int):
+        self.preferences = self.preferences[:degree]
+        return self
+
 
 class ProjectCapacities(BaseModel):
     id: str
@@ -22,8 +26,18 @@ class SupervisorCapacities(BaseModel):
     target: int
     upperBound: int
 
+    def modTarget(self, modifier: int):
+        self.target += modifier
+        return self
+
+    def modUpperBound(self, modifier: int):
+        self.upperBound += modifier
+        return self
+
 
 class SpaInput(BaseModel):
+    """Input data for an instance of the SPA problem"""
+
     students: list[StudentData]
     """list of students and their preferences"""
 
@@ -32,6 +46,18 @@ class SpaInput(BaseModel):
 
     supervisors: list[SupervisorCapacities]
     """list of lecturers and their capacity constraints"""
+
+    def truncate(self, degree: int):
+        self.students = [s.truncate(degree) for s in self.students]
+        return self
+
+    def modSupervisorTarget(self, modifier: int):
+        self.supervisors = [s.modTarget(modifier) for s in self.supervisors]
+        return self
+
+    def modSupervisorUpperBound(self, modifier: int):
+        self.supervisors = [s.modUpperBound(modifier) for s in self.supervisors]
+        return self
 
 
 # --- these get sent over the wire
@@ -47,6 +73,8 @@ class Match(BaseModel):
 
 
 class SpaOutput(BaseModel):
+    """..."""
+
     profile: list[int]
     degree: int
     size: int

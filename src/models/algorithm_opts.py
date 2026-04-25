@@ -44,4 +44,6 @@ class CustomConfig(BaseModel):
     maxRank: Optional[int] = None
 
     def to_solver_flags(self) -> list[str]:
-        return [f.to_solver_flag() for f in self.flags]
+        return ["-na", str(len(self.flags))] + flatten(
+            [[f.to_solver_flag(), str(i + 1)] for i, f in enumerate(self.flags)]
+        )
